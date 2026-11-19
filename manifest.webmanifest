@@ -1,0 +1,9 @@
+{
+  "name": "スマスロ ワールドダイスター カウンター",
+  "short_name": "ワルスタカウンター",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#11101d",
+  "theme_color": "#17152b",
+  "lang": "ja"
+}

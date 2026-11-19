@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#17152b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ワルスタカウンター">
+<link rel="manifest" href="manifest.webmanifest">
+<title>ワールドダイスター カウンター</title>
+<style>
+:root{color-scheme:dark;--bg:#11101d;--panel:#1c1a2d;--panel2:#26233a;--line:#393550;--text:#f7f5ff;--muted:#aaa5c2;--pink:#ff6da8;--cyan:#75d9ed;--gold:#ffd477;--green:#83dfad}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#1d1933,#10101a 48%);color:var(--text);font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+header{padding:18px 16px 12px;position:sticky;top:0;background:#17152bf2;backdrop-filter:blur(12px);z-index:5;border-bottom:1px solid var(--line)}
+h1{font-size:19px;margin:0;font-weight:800;letter-spacing:.04em}header p{margin:4px 0 0;color:var(--muted);font-size:11px}
+nav{display:flex;gap:7px;padding:10px 12px;overflow:auto;position:sticky;top:68px;background:#151326ed;z-index:4}
+nav button{white-space:nowrap;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:999px;padding:9px 13px;font-weight:700}
+nav button.active{background:var(--pink);border-color:var(--pink);color:#241326}
+main{max-width:760px;margin:auto;padding:12px; padding-bottom:40px}.tab{display:none}.tab.active{display:block}
+.card{background:linear-gradient(145deg,var(--panel),#191729);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 8px 24px #0002}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}.muted{color:var(--muted)}.tiny{font-size:11px;color:var(--muted)}
+.big{font-size:30px;font-weight:850;font-variant-numeric:tabular-nums}.metric{background:var(--panel2);padding:12px;border-radius:12px;flex:1;min-width:0}.metric small{display:block;color:var(--muted);font-size:11px}.metric strong{font-size:23px;font-variant-numeric:tabular-nums}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+button{font:inherit;cursor:pointer}.btn{border:0;border-radius:11px;padding:11px 14px;background:var(--pink);color:#261326;font-weight:800}.btn.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}.btn.danger{background:#6d3049;color:white}.btn.small{padding:8px 11px;font-size:12px}
+.counter{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #ffffff12}.counter:last-child{border:0}.counter b{display:block;font-size:14px}.counter small{font-size:11px;color:var(--muted)}.count{min-width:34px;text-align:center;font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
+.plus{width:48px;height:46px;border:0;border-radius:13px;background:var(--pink);color:#271326;font-size:26px;font-weight:900}.minus{width:34px;height:34px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text);font-size:18px}
+input,select,textarea{width:100%;background:#11101d;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px;font:inherit}
+label{font-size:12px;color:var(--muted);display:block;margin-bottom:5px}.field{margin:9px 0}
+h2{font-size:16px;margin:0 0 12px}.pill{border-radius:999px;background:#32263c;color:#ffc0d9;padding:4px 8px;font-size:10px;font-weight:700}
+.char{display:flex;align-items:center;gap:9px}.dot{width:11px;height:11px;border-radius:50%;background:var(--pink)}.char .name{flex:1;font-weight:750}.char input{width:76px;text-align:center;padding:8px}
+.log{border-top:1px solid #ffffff15;padding:9px 0;font-size:12px}.log strong{font-size:13px}.hidden{display:none!important}
+footer{text-align:center;color:var(--muted);font-size:10px;padding:16px}
+@media(min-width:600px){main{padding:20px}.counter b{font-size:15px}}
+</style>
+</head>
+<body>
+<header><h1>WORLD DAI STAR <span style="color:var(--pink)">COUNTER</span></h1><p>スマスロ Lワールドダイスター｜実戦サポート</p></header>
+<nav>
+<button class="active" data-tab="play">実戦カウンター</button><button data-tab="points">キャラポイント</button><button data-tab="judge">設定・当選記録</button><button data-tab="history">実戦履歴</button>
+</nav>
+<main>
+<section id="play" class="tab active">
+ <div class="card">
+  <div class="row"><div><div class="tiny">現在の総ゲーム数</div><div class="big" id="games">0 <span style="font-size:15px">G</span></div></div><span class="pill" id="sessionState">実戦中</span></div>
+  <div class="grid2" style="margin-top:12px">
+   <button class="btn" onclick="addGames(1)">＋1G</button><button class="btn secondary" onclick="addGames(10)">＋10G</button>
+  </div>
+  <div class="field"><label>ゲーム数を直接入力（現在値を置き換え）</label><div class="row"><input id="gameInput" type="number" min="0" inputmode="numeric" placeholder="例：350"><button class="btn secondary" onclick="setGames()">反映</button></div></div>
+ </div>
+ <div class="card"><h2>通常時 小役カウント</h2><div class="tiny" style="margin-bottom:8px">＋をタップして加算。確率は総ゲーム数に対する実測値。</div><div id="役Counters"></div></div>
+ <div class="card"><h2>チャンス目合算</h2><div class="grid3"><div class="metric"><small>単独</small><strong id="singleTotal">0</strong></div><div class="metric"><small>複合</small><strong id="multiTotal">0</strong></div><div class="metric"><small>全チャンス目</small><strong id="chanceTotal">0</strong></div></div><div class="row" style="margin-top:10px"><span class="tiny">小役合算（参考）</span><strong id="combined">—</strong></div></div>
+ <div class="row"><button class="btn secondary" onclick="undo()">↶ 1回戻す</button><button class="btn danger" onclick="resetCounters()">小役カウントをリセット</button></div>
+</section>
+
+<section id="points" class="tab">
+ <div class="card"><h2>キャラポイント管理</h2><p class="tiny">通常時の対応役成立をカウント。液晶表示のポイントを確認できる場合は手入力で上書きできます。複合役は該当するキャラをそれぞれ加算してください。</p><div id="pointRows"></div></div>
+ <div class="card"><h2>しりうす湯・ポイントメモ</h2><div class="field"><label>突入契機キャラ</label><select id="bathChar"><option>ここな</option><option>カトリナ</option><option>静香</option><option>ぱんだ</option><option>八恵</option></select></div><div class="field"><label>獲得ポイント／メモ</label><input id="bathMemo" placeholder="例：10G・ここなポイント加算"></div><button class="btn" onclick="addNote('しりうす湯')">メモを記録</button></div>
+</section>
+
+<section id="judge" class="tab">
+ <div class="card"><h2>当選・設定示唆の記録</h2><div class="grid2">
+  <div class="field"><label>CZ回数</label><input id="cz" type="number" min="0" value="0"></div>
+  <div class="field"><label>ボーナス／AT初当たり</label><input id="at" type="number" min="0" value="0"></div>
+  <div class="field"><label>投資（円）</label><input id="investment" type="number" min="0" value="0"></div>
+  <div class="field"><label>回収（円）</label><input id="return" type="number" min="0" value="0"></div>
+ </div><div class="grid2"><div class="metric"><small>CZ実測</small><strong id="czRate">—</strong></div><div class="metric"><small>AT初当たり実測</small><strong id="atRate">—</strong></div><div class="metric"><small>差枚・収支（円）</small><strong id="profit">0</strong></div><div class="metric"><small>設定示唆メモ数</small><strong id="hintCount">0</strong></div></div></div>
+ <div class="card"><h2>設定示唆</h2><div class="field"><label>示唆の種類</label><select id="hintType"><option>コパンダトロフィー</option><option>ボーナス獲得枚数表示</option><option>エンディングサイン</option><option>ボイス連動ランプ</option><option>その他</option></select></div><div class="field"><label>内容</label><select id="hintValue"><option>銅トロフィー（設定2以上）</option><option>銀トロフィー（設定3以上）</option><option>金トロフィー（設定4以上）</option><option>キリン柄トロフィー（設定5以上）</option><option>虹トロフィー（設定6）</option><option>222枚OVER（設定2以上）</option><option>444枚OVER（設定4以上）</option><option>557枚OVER（設定5以上）</option><option>666枚OVER（設定6）</option><option>白サイン</option><option>青／紫系サイン</option><option>金サイン</option><option>虹サイン</option><option>白ランプ</option><option>青ランプ</option><option>赤ランプ</option><option>その他・要確認</option></select></div><button class="btn" onclick="addHint()">示唆を記録</button><div id="hints" style="margin-top:10px"></div></div>
+ <div class="card"><h2>当選履歴メモ</h2><div class="field"><label>内容</label><input id="eventMemo" placeholder="例：通常 280G CZ当選"></div><button class="btn secondary" onclick="addNote('当選メモ')">メモを追加</button></div>
+</section>
+
+<section id="history" class="tab">
+ <div class="card"><h2>今回の実戦</h2><div class="grid2"><div class="metric"><small>総ゲーム数</small><strong id="histGames">0G</strong></div><div class="metric"><small>収支</small><strong id="histProfit">0円</strong></div></div><div class="field"><label>店舗・台番号</label><input id="venue" placeholder="店舗名／台番号"></div><div class="field"><label>実戦メモ</label><textarea id="sessionMemo" rows="2" placeholder="自由記入"></textarea></div><button class="btn" onclick="saveSession()">この実戦を保存</button><button class="btn secondary" style="margin-left:6px" onclick="exportCSV()">CSVを書き出す</button></div>
+ <div class="card"><h2>保存済み実戦</h2><div id="savedSessions" class="tiny">まだ保存された実戦はありません。</div></div>
+ <div class="row"><button class="btn danger" onclick="newSession()">新しい実戦を開始</button><button class="btn secondary" onclick="backup()">バックアップ</button></div>
+</section>
+<footer>データはこの端末のブラウザ内に保存されます。設定推測は参考情報であり、設定を保証するものではありません。</footer>
+</main>
+<script>
+const roles=[
+ {id:'replay',name:'リプレイ',odds:8.5,group:'通常小役',char:'ぱんだ'},
+ {id:'bell',name:'共通ベル',odds:9.9,group:'通常小役',char:'カトリナ'},
+ {id:'red',name:'赤チャンス目',odds:31.4,group:'単独チャンス目',char:'ここな'},
+ {id:'green',name:'緑チャンス目',odds:38.9,group:'単独チャンス目',char:'静香'},
+ {id:'purple',name:'紫チャンス目',odds:59.3,group:'単独チャンス目',char:'八恵'},
+ {id:'rg',name:'赤緑チャンス目',odds:565,group:'複合チャンス目',char:'ここな・静香'},
+ {id:'rp',name:'赤紫チャンス目',odds:565,group:'複合チャンス目',char:'ここな・八恵'},
+ {id:'gp',name:'緑紫チャンス目',odds:565,group:'複合チャンス目',char:'静香・八恵'},
+ {id:'world',name:'ワールドダイスター目',odds:16384,group:'プレミア役',char:'—'}
+];
+const chars=['ここな','カトリナ','静香','ぱんだ','八恵'];
+let state={games:0,counts:{},points:{},cz:0,at:0,investment:0,return:0,hints:[],notes:[],sessions:[],undo:[],active:true};
+function load(){try{let s=JSON.parse(localStorage.getItem('wdsCounter'));if(s)state={...state,...s}}catch(e){};roles.forEach(r=>state.counts[r.id]??=0);chars.forEach(c=>state.points[c]??=0);['cz','at','investment','return'].forEach(k=>{let el=document.getElementById(k);el.value=state[k]||0});render()}
+function persist(){localStorage.setItem('wdsCounter',JSON.stringify(state))}
+function pushUndo(){state.undo.push(JSON.stringify({games:state.games,counts:state.counts,points:state.points}));if(state.undo.length>40)state.undo.shift()}
+function addGames(n){pushUndo();state.games=Math.max(0,state.games+n);render()}
+function setGames(){let v=Number(document.getElementById('gameInput').value);if(Number.isFinite(v)&&v>=0){pushUndo();state.games=Math.floor(v);render()}}
+function addRole(id){pushUndo();state.counts[id]++;let role=roles.find(r=>r.id===id);if(role){let map={'replay':'ぱんだ','bell':'カトリナ','red':'ここな','green':'静香','purple':'八恵'};if(map[id])state.points[map[id]]++}render()}
+function subRole(id){pushUndo();state.counts[id]=Math.max(0,state.counts[id]-1);render()}
+function undo(){let prev=state.undo.pop();if(!prev)return;let p=JSON.parse(prev);state.games=p.games;state.counts=p.counts;state.points=p.points;render()}
+function odds(n){return n>0?'1/'+(state.games/n).toFixed(1):'—'}
+function render(){
+ document.getElementById('games').innerHTML=state.games.toLocaleString()+' <span style="font-size:15px">G</span>';
+ document.getElementById('役Counters').innerHTML=roles.map(r=>`<div class="counter"><div><b>${r.name}</b><small>解析 1/${r.odds}｜実測 ${odds(state.counts[r.id])}</small></div><div class="count">${state.counts[r.id]}</div><button class="plus" aria-label="${r.name}を加算" onclick="addRole('${r.id}')">＋</button></div>`).join('');
+ let single=['red','green','purple'].reduce((a,k)=>a+state.counts[k],0),multi=['rg','rp','gp'].reduce((a,k)=>a+state.counts[k],0),all=single+multi;
+ document.getElementById('singleTotal').textContent=single;document.getElementById('multiTotal').textContent=multi;document.getElementById('chanceTotal').textContent=all;
+ let sum=roles.reduce((a,r)=>a+state.counts[r.id],0);document.getElementById('combined').textContent=sum?`1/${(state.games/sum).toFixed(2)}`:'—';
+ document.getElementById('pointRows').innerHTML=chars.map(c=>`<div class="counter"><div class="char"><span class="dot"></span><span class="name">${c}</span></div><input type="number" min="0" value="${state.points[c]}" onchange="setPoint('${c}',this.value)"><button class="plus" onclick="incPoint('${c}')">＋</button></div>`).join('');
+ ['cz','at','investment','return'].forEach(k=>{let v=Number(document.getElementById(k)?.value??state[k]);if(Number.isFinite(v))state[k]=v});
+ document.getElementById('czRate').textContent=state.cz?`1/${(state.games/state.cz).toFixed(1)}`:'—';document.getElementById('atRate').textContent=state.at?`1/${(state.games/state.at).toFixed(1)}`:'—';
+ let profit=state.return-state.investment;document.getElementById('profit').textContent=profit.toLocaleString()+'円';document.getElementById('hintCount').textContent=state.hints.length;
+ document.getElementById('hints').innerHTML=state.hints.map((h,i)=>`<div class="log"><strong>${h.type}</strong>：${h.value}<button class="btn small secondary" style="float:right" onclick="removeHint(${i})">削除</button></div>`).join('');
+ document.getElementById('histGames').textContent=state.games.toLocaleString()+'G';document.getElementById('histProfit').textContent=profit.toLocaleString()+'円';
+ document.getElementById('savedSessions').innerHTML=state.sessions.length?state.sessions.slice().reverse().map(s=>`<div class="log"><strong>${s.date}｜${s.venue||'店舗未入力'}</strong><br>${s.games}G／収支 ${s.profit}円<br><span class="muted">${s.memo||''}</span></div>`).join(''):'まだ保存された実戦はありません。';
+ persist();
+}
+function setPoint(c,v){state.points[c]=Math.max(0,Number(v)||0);render()}function incPoint(c){pushUndo();state.points[c]++;render()}
+function syncFields(){['cz','at','investment','return'].forEach(k=>{document.getElementById(k).addEventListener('change',()=>{state[k]=Math.max(0,Number(document.getElementById(k).value)||0);render()})})}
+function addHint(){state.hints.push({type:document.getElementById('hintType').value,value:document.getElementById('hintValue').value});render()}
+function removeHint(i){state.hints.splice(i,1);render()}
+function addNote(type){let memo=type==='しりうす湯'?document.getElementById('bathChar').value+'：'+document.getElementById('bathMemo').value:document.getElementById('eventMemo').value;if(!memo.trim())return;state.notes.push({type,memo,time:new Date().toLocaleTimeString('ja-JP')});document.getElementById(type==='しりうす湯'?'bathMemo':'eventMemo').value='';render();alert('メモを記録しました')}
+function saveSession(){let venue=document.getElementById('venue').value,memo=document.getElementById('sessionMemo').value;state.sessions.push({date:new Date().toLocaleString('ja-JP'),venue,memo,games:state.games,profit:state.return-state.investment,counts:{...state.counts},points:{...state.points},cz:state.cz,at:state.at,hints:[...state.hints],notes:[...state.notes]});render();alert('実戦データを保存しました')}
+function newSession(){if(!confirm('現在のデータを消去して新しい実戦を開始しますか？先に保存してください。'))return;state.games=0;state.counts={};roles.forEach(r=>state.counts[r.id]=0);state.points={};chars.forEach(c=>state.points[c]=0);state.cz=state.at=state.investment=state.return=0;state.hints=[];state.notes=[];state.undo=[];['cz','at','investment','return'].forEach(k=>document.getElementById(k).value=0);render()}
+function resetCounters(){if(!confirm('小役カウントだけをリセットしますか？'))return;pushUndo();roles.forEach(r=>state.counts[r.id]=0);render()}
+function exportCSV(){let rows=[['項目','値'],['総ゲーム数',state.games],...roles.map(r=>[r.name,state.counts[r.id]]),...chars.map(c=>[c+'ポイント',state.points[c]]),['CZ',state.cz],['AT初当たり',state.at],['投資',state.investment],['回収',state.return],['収支',state.return-state.investment]];let csv='\uFEFF'+rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\r\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='world-dai-star-session.csv';a.click();URL.revokeObjectURL(a.href)}
+function backup(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));a.download='world-dai-star-backup.json';a.click();URL.revokeObjectURL(a.href)}
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active')}));
+load();syncFields();
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script>
+</body></html>
